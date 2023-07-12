@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Samba sur Debian 11</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        pre {
+		 border: 1px solid #808080;
+            background-color: #f7f7f9;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        code {
+            color: #1E90FF;
+            background-color: #f7f7f9;
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
+					header {
+			background-color: #333;
+			color: #fff;
+			text-align: center;
+			padding: 20px;
+			margin-bottom: 20px;
+		}
+		
+    </style>
+</head>
+<body>
+
+
+<header>
+	<center> <h1 style="color: #FFFFFF ;">Installer et Configurer Samba sur Debian 11</h1></center>
+	</header>
+	
+	
+    <div class="container">
+       
+
+        <h2>Etape 1: Installer Samba</h2>
+        <pre><code>sudo apt-get update
+sudo apt-get install samba</code></pre>
+
+        <h2>Etape 2: Creer le repertoire de partage</h2>
+        <pre><code>sudo mkdir /samba/share
+sudo chown -R nobody:nogroup /samba/share
+sudo chmod -R 0775 /samba/share</code></pre>
+
+        <h2>Etape 3: Configurer Samba</h2>
+        <p>Editez le fichier de configuration Samba avec la commande suivante :</p>
+        <pre><code>sudo nano /etc/samba/smb.conf</code></pre>
+        <p>Ajoutez les lignes suivantes a la fin du fichier:</p>
+        <pre><code>[Share]
+path = /samba/share
+browsable =yes
+writable = yes
+guest ok = yes
+read only = no</code></pre>
+
+        <h2>Etape 4: Redemarrer Samba</h2>
+        <pre><code>sudo systemctl restart smbd</code></pre>
+
+        <h2>Etape 5: Verifier le partage Samba</h2>
+        <pre><code>smbclient -L localhost -U%</code></pre>
+		
+		<h2>Etape 6: Acceder au partage depuis une machine Linux</h2>
+        <p>Vous pouvez utiliser la commande smbclient pour acceder au partage Samba depuis une machine Linux.</p>
+        <pre><code>smbclient //hostname_or_IP_address/Share</code></pre>
+
+        <h2>Etape 7: Acceder au partage depuis une machine Windows</h2>
+        <p>Depuis une machine Windows, vous pouvez acceder au partage Samba en utilisant l'Explorateur de fichiers.</p>
+        <ol>
+            <li>Ouvrez l'Explorateur de fichiers.</li>
+            <li>Dans la barre d'adresse, tapez le chemin d'acces au partage Samba, qui sera quelque chose comme <pre><code>\\hostname_or_IP_address\Share</code></pre>.</li>
+        </ol>
+		
+		
+		
+    </div>
+</body>
+</html>

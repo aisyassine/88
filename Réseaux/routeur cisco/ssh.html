@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutoriel Configuration Routeur Cisco</title>
+    <style>
+      body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background-color: #f5f5f5;
+			margin: 0;
+			padding: 0;
+		}
+
+     	h1 {
+			font-size: 36px;
+			margin-top: 0;
+			margin-bottom: 20px;
+		}
+
+        pre {
+           	color : lime;
+            background-color: #000000;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+		.container {
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 20px;
+			background-color: #fff;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
+			header {
+			background-color: #333;
+			color: #fff;
+			text-align: center;
+			padding: 20px;
+			margin-bottom: 20px;
+		}
+		
+		
+		 table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+		
+    </style>
+</head>
+
+<body>
+
+<header>
+		<h1>Tutoriel Configuration Routeur Cisco</h1>
+	</header>
+	
+	
+
+	<div class="container">
+	
+	
+    
+    <h2>Configurer SSH sur un routeur Cisco</h2>
+    <pre>
+configure terminal
+
+interface f0/0
+#ip address w.x.y.z  w.x.y.z 
+#no shutdown 
+#do wr
+#exit
+<hr>
+ip domain-name votre-domaine.com
+crypto key generate rsa general-keys modulus 2048
+ip ssh version 2
+username votre_utilisateur privilege 15 secret votre_mot_de_passe
+line vty 0 15
+login local
+transport input ssh
+exit
+write memory
+    </pre>
+	
+	
+	show ip interface brief
+	show run | section line vty
+	show run | include ssh
+	
+
+    <h2>Configurer l'adresse de Loopback</h2>
+    <pre>
+configure terminal
+interface Loopback 0
+ip address x.x.x.x y.y.y.y
+no shutdown
+exit
+write memory
+    </pre>
+
+    <h2>Se connecter au routeur via SSH</h2>
+    <pre>
+ssh noro@x.x.x.x
+    </pre>
+	
+	
+	
+	<h2>en cas de problem</h2>
+	
+	
+	<ul> 
+	
+	   </li>
+	   
+	   <li><h4>Assurez-vous que l'adresse IP du routeur est correcte.</h4></li>
+	   <li><h4>Vérifiez que le serveur SSH est correctement configuré sur le routeur.</h4></li>
+	   <li><h4>Assurez-vous que les lignes VTY sont correctement configurées pour accepter les connexions SSH.</h4></li>
+	
+	</ul>
+	
+	<pre>
+	show ip interface brief
+	 
+	show run | section line vty
+	 
+	show run | include ssh
+	 </pre>
+	
+<br>
+<hr>
+<br>
+ 
+	 
+	    <h1>Configuration Cisco</h1>
+    <table>
+        <tr>
+            <th>Commande</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>R1(config-line)#exec-timeout 0 60</td>
+            <td>Définit le temps d'inactivité avant que la session ne se termine</td>
+        </tr>
+        <tr>
+            <td>sh ssh</td>
+            <td>Affiche les sessions en cours SSH</td>
+        </tr>
+        <tr>
+            <td>ip ssh authentication-retries ?</td>
+            <td>Définit le nombre de tentatives autorisées pour une connexion SSH</td>
+        </tr>
+        <tr>
+            <td>ip ssh time-out 60</td>
+            <td>Définit le temps d'attente pour négocier une clé de session et une méthode de chiffrement avec un client SSH</td>
+        </tr>
+        <tr>
+            <td>Show ip ssh</td>
+            <td>Affiche la configuration SSH</td>
+        </tr>
+        <tr>
+            <td>crypto key ?</td>
+            <td>Modifie les clés SSH</td>
+        </tr>
+        <tr>
+            <td>security passwords min-length 10</td>
+            <td>Force une longueur minimale pour les mots de passe</td>
+        </tr>
+        <tr>
+            <td>login block-for 10 attempts 3 within 30</td>
+            <td>Bloque les connexions pendant 10 secondes si 3 tentatives de connexion échouent dans les 30 secondes</td>
+        </tr>
+        <tr>
+            <td>show login</td>
+            <td>Affiche les paramètres de connexion</td>
+        </tr>
+        <tr>
+            <td>login quiet-mode access-class adminacl</td>
+            <td>Bloque les messages de connexion pour les clients ne figurant pas sur la liste d'accès standard "adminacl"</td>
+        </tr>
+        <tr>
+            <td>enable secret level X ciscoX</td>
+            <td>Définit un mot de passe secret et un niveau d'accès</td>
+        </tr>
+        <tr>
+            <td>privilege exec,configure,interface level X</td>
+            <td>Définit les privilèges de niveau d'accès pour les utilisateurs</td>
+        </tr>
+    </table>
+	
+	 
+	 
+	 
+</div>
+ 
+	
+</body>
+
+</html>
+
+

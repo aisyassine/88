@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Serveur FTP sur Debian 11</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        pre {
+            border: 1px solid #808080;
+            background-color: #f7f7f9;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        code {
+            color: #1E90FF;
+            background-color: #f7f7f9;
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
+		
+			header {
+			background-color: #333;
+			color: #fff;
+			text-align: center;
+			padding: 20px;
+			margin-bottom: 20px;
+		}
+		
+		
+    </style>
+</head>
+<body>
+
+<header>
+	<center> <h1 style="color: #FFFFFF ;">Installer et Configurer un serveur FTP avec ProFTPD sur Debian 11</h1></center>
+	</header>
+	
+	
+    <div class="container">
+       
+
+        <h2>Etape 1: Installer le paquet ProFTPD via APT</h2>
+        <pre><code>sudo apt install proftpd openssl</code></pre>
+
+        <h2>Etape 2: Creer le groupe et l'utilisateur FTP</h2>
+        <pre><code>
+sudo addgroup ftpgroup
+sudo adduser yassine --shell /bin/false --home /ftpshare
+sudo adduser yassine ftpgroup
+sudo chmod -R 1777 /ftpshare
+        </code></pre>
+
+        <h2>Etape 3: Configurer ProFTPD</h2>
+        <p>Creer le fichier « personnalises.conf » :</p>
+        <pre><code>sudo nano /etc/proftpd/conf.d/personnalises.conf</code></pre>
+
+        <!-- Utilisez du contenu preformate (pre) pour conserver la mise en forme du texte -->
+        <pre><code>
+ServerName "Debian"
+UseIPv6 off
+RootLogin off
+RequireValidShell off
+Port 21
+DefaultRoot ~
+
+&lt;Limit LOGIN&gt;
+DenyGroup !ftpgroup
+&lt;/Limit&gt;
+
+&lt;IfModule mod_ctrls.c&gt;
+ControlsEngine off
+ControlsMaxClients 2
+ControlsLog /var/log/proftpd/controls.log
+ControlsInterval 5
+ControlsSocket /var/run/proftpd/proftpd.sock
+&lt;/IfModule&gt;
+        </code></pre>
+
+        <h2>Etape 4: Configurer ProFTPD TLS</h2>
+        <pre><code>
+sudo mkdir /etc/proftpd/ssl
+openssl req -new -x509 -keyout /etc/proftpd/ssl/proftpd.key.pem -days 365 -nodes -out /etc/proftpd/ssl/proftpd.cert.pem
+sudo chmod 600 /etc/proftpd/ssl/proftpd.*
+sudo nano /etc/proftpd/conf.d/tls.conf
+        </code></pre>
+
+        <pre><code>
+&lt;IfModule mod_tls.c&gt;
+TLSEngine on
+TLSLog /var/log/proftpd/tls.log
+TLSProtocol SSLv23
+TLSOptions NoCertRequest AllowClientRenegotiations
+TLSRSACertificateFile /etc/proftpd/ssl/proftpd.cert.pem
+TLSRSACertificateKeyFile /etc/proftpd/ssl.proftpd.key.pem
+TLSVerifyClient off
+TLSRequired on
+RequireValidShell no
+TLSOptions NoSessionReuseRequired
+&lt;/IfModule&gt;
+        </code></pre>
+
+        <h2>Etape 5: Redemarrer ProFTPD</h2>
+        <pre><code>sudo service proftpd restart</code></pre>
+
+        <h2>Etape 6: Verifier que le serveur FTP est en ecoute sur le port 21</h2>
+        <pre><code>sudo netstat -lpn | grep proftpd</code></pre>
+        <p>Une reponse comme celle-ci devrait s’afficher :</p>
+        <pre><code>tcp6 0 0 :::21 :::* LISTEN 24557/proftpd:</code></pre>
+
+        <h2>Etape 7: Se connecter au serveur FTP ProFTPD avec un client tel que ncftp ou FileZilla</h2>
+        <pre><code>ncftp -u &lt;user&gt; &lt;adresse_srv&gt;</code></pre>
+        <p>Remplacez &&lt;adresse_srv&gt; par l'adresse de votre serveur.</p>
+    </div>
+</body>
+</html>
+

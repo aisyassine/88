@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Tutoriel Debian 11</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+
+
+<style>
+	body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background-color: #f5f5f5;
+			margin: 0;
+			padding: 0;
+		}
+
+		header {
+			background-color: #333;
+			color: #fff;
+			text-align: center;
+			padding: 20px;
+			margin-bottom: 20px;
+		}
+		
+		h1 {
+			font-size: 36px;
+			margin-top: 0;
+			margin-bottom: 20px;
+		}
+
+		.container {
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 20px;
+			background-color: #fff;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
+ 
+
+h2 {
+	margin-top: 50px;
+}
+
+p {
+	margin-top: 20px;
+}
+
+pre {
+	background-color: #eee;
+	padding: 10px;
+	overflow-x: auto;
+	font-size: 14px;
+}
+
+pre code {
+	font-family: "Courier New", Courier, monospace;
+}
+
+pre::-webkit-scrollbar {
+	width: 10px;
+}
+
+pre::-webkit-scrollbar-track {
+	background: #f1f1f1;
+}
+
+pre::-webkit-scrollbar-thumb {
+	background-color: #888;
+	border-radius: 5px;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+	background-color: #555;
+}
+
+@media screen and (max-width: 768px) {
+	pre {
+		overflow-x: scroll;
+	}
+}
+
+
+</style>
+
+<body>
+
+	<header>
+		<h1>Start with  Debian 11</h1>
+	</header>
+
+	<div class="container">
+	
+	
+	
+	
+	
+	<h2>Ajout d'un utilisateur dans le groupe sudo</h2>
+	<p>Pour ajouter un utilisateur dans le groupe sudo, ouvrez le fichier <strong>/etc/sudoers</strong> en utilisant la commande visudo :</p>
+	<pre>sudo visudo</pre>
+	<p>Ajoutez ensuite la ligne suivante en bas du fichier :</p>
+	<pre><strong>nom_utilisateur ALL=(ALL) ALL</strong></pre>
+
+<p>Remplacez <strong>nom_utilisateur</strong> par le nom de l'utilisateur que vous souhaitez ajouter au groupe sudo. Enregistrez et fermez le fichier.</p>
+
+
+	<h2>Configuration d'une adresse IP fixe</h2>
+	<p>La première étape ensuite consiste à configurer une adresse IP fixe pour votre machine Debian 11. Pour ce faire, ouvrez le fichier <strong>/etc/network/interfaces</strong> à l'aide de votre éditeur de texte préféré et ajoutez les lignes suivantes :</p>
+	<pre>
+auto eth0
+iface eth0 inet static
+address &lt;adresse IP&gt;
+netmask &lt;masque de sous-réseau&gt;
+gateway &lt;passerelle par défaut&gt;
+	</pre>
+	
+	
+	<p>Redemarrage du service réseau </p>
+
+	<pre> sudo systemctl restart networking.service 	</pre>
+
+ 
+
+<p>voir les status du service réseau </p>
+
+	<pre> sudo systemctl status networking.service 	</pre>
+	
+
+	
+<p>SI l’interface est donw </p>
+	
+<pre>sudo ip link set ens33 up </pre>
+
+<p>En cas de problème  : filaire non géré : </p> 
+
+<pre>
+sudo apt-get install network-manager 
+sudo systemctl enable --now NetworkManager 
+
+sudo nano /etc/network/interfaces 
+
+#auto ens33 
+#iface ens33 inet static 
+#  address 192.168.232.110 
+#  netmask 255.255.255.0 
+#  gateway 192.168.232.2 
+#  dns-nameservers 8.8.8.8 8.8.4.4 
+
+sudo systemctl restart NetworkManager 
+sudo nmtui 
+
+Et suivre les étape.
+</pre>
+
+	
+
+	<h2>Configuration du dépôt</h2>
+	<p>Les dépôts sont des endroits où les paquets logiciels sont stockés et mis à jour. Pour ajouter un dépôt tiers, ouvrez le fichier <strong>/etc/apt/sources.list</strong> et ajoutez une ligne pour le dépôt :</p>
+	<pre>
+
+deb http://debian-archive.trafficmanager.net/debian/ bullseye main
+
+deb-src http://debian-archive.trafficmanager.net/debian/ bullseye main
+
+ 
+
+deb http://security.debian.org/debian-security bullseye-security main
+
+deb-src http://security.debian.org/debian-security bullseye-security main
+
+
+
+deb http://debian-archive.trafficmanager.net/debian/ bullseye-updates main
+
+deb-src http://debian-archive.trafficmanager.net/debian/ bullseye-updates main
+
+	
+	</pre>
+
+
+
+	<h2>Installation de paquets</h2>
+	<p>Une fois que vous avez configuré votre dépôt, vous pouvez installer des paquets en utilisant apt-get. Par exemple, pour installer le paquet "nano", tapez :</p>
+	<pre>sudo apt-get install nano</pre>
+	
+	
+	<h2>Installation de curl</h2>
+	<p>Curl est un outil en ligne de commande pour transférer des données à partir ou vers un serveur. Pour l'installer, ouvrez un terminal et tapez :</p>
+	<pre>sudo apt-get install curl</pre>
+
+
+
+	<h2>Suppression de paquets</h2>
+	<p>Si vous souhaitez supprimer un paquet, utilisez la commande apt-get remove. Par exemple, pour supprimer le paquet "nano", tapez :</p>
+	<pre>sudo apt-get remove nano</pre>
+
+	<h2>Montage de disques</h2>
+	<p>Pour monter un disque, connectez-le à votre machine et tapez :</p>
+	<pre>
+sudo mkdir /mnt/&lt;nom_du_disque&gt;
+sudo mount /dev/&lt;nom_du_disque&gt; /mnt/&lt;nom_du_disque&gt;
+	</pre>
+
+	<h2>Création de liens symboliques</h2>
+	<p>Les liens symboliques sont des raccourcis vers des fichiers ou des dossiers. Pour créer un lien symbolique, utilisez la commande ln -s. Par exemple, pour créer un lien symbolique vers le dossier /var/www/html, tapez :</p>
+	<pre>sudo ln -s /var/www/html /home/user/www</pre>
+	
+	
+	</div>
+</body>
+</html>

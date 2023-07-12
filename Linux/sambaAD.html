@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Installation du service AD avec Samba sous Linux Debian 10</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        code {
+            display: block;
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .step {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Installation du service AD avec Samba sous Linux Debian 10</h1>
+    <p>Nom de domaine : mdnf.loc</p>
+    <p>Nom du serveur : dc01</p>
+    <p>@IP dc01 : 192.168.74.100</p>
+ 
+<div class="step">
+    <h2>Utilisation de Putty pour se connecter au serveur une fois l'@IP fixe configurée</h2>
+    <p>Utilisez Putty pour vous connecter au serveur en utilisant l'adresse IP fixe configurée.</p>
+</div>
+
+<div class="step">
+    <h2>Manipulations avec un compte sudoers (ici olivier)</h2>
+    <p>Assurez-vous d'avoir un compte utilisateur avec les privilèges sudo (dans cet exemple, le compte "olivier").</p>
+</div>
+
+<div class="step">
+    <h2>Facultatif : mise en anglais des logs pour une meilleure lecture</h2>
+    <code>sudo apt-get install locales-all</code>
+    <code>sudo localectl set-locale LANG=en_US.utf8</code>
+    <p>Pour vérifier :</p>
+    <code>localectl status</code>
+	<img src="smb/1.png">
+</div>
+
+<div class="step">
+    <h2>Configuration du serveur</h2>
+    <h3>Nom de la machine</h3>
+    <code>sudo nano /etc/hostname</code>
+    <p>Ajoutez le nom complet du domaine (Fully Qualified Domain Name - FQDN) du serveur : "nom-du-serveur.nom-de-domaine"</p>
+    <p>Dc01.mdnf.loc</p>
+	<img src="smb/2.png">
+</div>
+
+<div class="step">
+    <h3>Fichier hosts</h3>
+    <code>sudo nano /etc/hosts</code>
+    <p>Ajoutez le FQDN du serveur et son adresse IP :</p>
+    <p>192.168.74.100 dc01.mdnf.loc</p>
+	<img src="smb/3.png">
+</div>
+
+<div class="step">
+    <h3>IP statique</h3>
+    <p>Ouvrez le fichier /etc/network/interfaces avec les privilèges sudo :</p>
+    <code>sudo nano /etc/network/interfaces</code>
+    <p>Ajoutez ou modifiez les lignes suivantes :</p>
+    <code>address 192.168.74.100</code>
+    <code>netmask 255.255.255.0</code>
+    <code>network 192.168.74.0</code>
+    <code>gateway 192.168.74.254</code>
+	<img src="smb/4.png">
+</div>
+
+<div class="step">
+<h2>Redémarrage du système</h2>
+<code>sudo reboot</code>
+</div>
+ 
+<div class="step">
+    <h2>Installation de Samba</h2>
+    <h3>Installation d'outils</h3>
+    <p>Mettez à jour la liste des paquets pour vous assurer d'avoir les dernières versions disponibles :</p>
+    <code>sudo apt update</code>
+    <p>Installez les utilitaires en utilisant la commande suivante :</p>
+    <code>sudo apt install -y wget screen nmap telnet tcpdump rsync net-tools dnsutils htop</code>
+    <p>Installez les paquets apt-transport-https et gnupg :</p>
+    <code>sudo apt install apt-transport-https gnupg</code>
+</div>
+
+<div class="step">
+    <h3>Installation des dépôts</h3>
+    <p>Téléchargez la clé publique du dépôt Tranquil IT :</p>
+    <code>sudo wget -O tissamba-pubkey.gpg http://samba.tranquil.it/tissamba-pubkey.gpg</code>
+    <p>Vérifiez la somme de contrôle SHA256 de la clé téléchargée :</p>
+    <code>sha256sum tissamba-pubkey.gpg</code>
+    <p>Ajoutez la clé publique au trousseau de clés APT :</p>
+    <code>sudo apt-key add tissamba-pubkey.gpg</code>
+    <p>Ajoutez le dépôt Tranquil IT à la liste des sources APT :</p>
+    <code>sudo sh -c 'echo "deb https://samba.tranquil.it/debian/samba-4.18/ $(lsb_release -c -s) main" > /etc/apt/sources.list.d/tissamba.list'</code>
+    <p>Mettez à jour la liste des paquets :</p>
+    <code>sudo apt update</code>
+</div>
+
+<div class="step">
+    <h3>Installation des paquets</h3>
+    <p>Exportez la variable DEBIAN_FRONTEND :</p>
+    <code>export DEBIAN_FRONTEND=noninteractive</code>
+    <p>Mettez à jour la liste des paquets :</p>
+    <code>sudo apt-get update</code>
+    <p>Installez les paquets nécessaires :</p>
+    <code>sudo apt-get install samba winbind libnss-winbind krb5-user smbclient ldb-tools python3-cryptography</code>
+    <p>Réinitialisez la variable DEBIAN_FRONTEND :</p>
+    <code>unset DEBIAN_FRONTEND</code>
+</div>
+
+<div class="step">
+    <h2>Configuration</h2>
+    <h3>Kerberos</h3>
+    <code>sudo nano /etc/krb5.conf</code>
+    <p>Effacez le contenu du fichier et ajoutez les lignes suivantes :</p>
+    <code>[libdefaults]</code>
+    <code>default_realm = MDNF.LOC</code>
+    <code>dns_lookup_kdc = true</code>
+    <code>dns_lookup_realm = false</code>
+	<img src="smb/5.png">
+</div>
+
+<div class="step">
+    <h3>Configuration de Samba en tant que DC </h3>
+        <p>Supprimez le fichier de configuration par défaut de Samba :</p>
+        <code>sudo rm -f /etc/samba/smb.conf</code>
+        <p>Créez un nouveau fichier de configuration Samba :</p>
+        <code>sudo nano /etc/samba/smb.conf</code>
+        <p>Personnalisez le fichier de configuration selon votre environnement en suivant la documentation officielle de Samba pour configurer votre contrôleur de domaine.</p>
+        <p>Redémarrez les services Samba et Kerberos pour appliquer les modifications :</p>
+        <code>sudo systemctl restart samba</code>
+        <code>sudo systemctl restart smbd</code>
+        <code>sudo systemctl restart nmbd</code>
+        <code>sudo systemctl restart winbind</code>
+    </div>
+ 
+<div class="step">
+    <h3>Configuration du mot de passe pour le compte administrateur de Samba (Administrator)</h3>
+    <p>Utilisez la commande samba-tool pour définir le mot de passe du compte administrateur :</p>
+    <code>sudo samba-tool user setpassword administrator</code>
+    <p>Tapez le mot de passe souhaité, par exemple : Pa$$word</p>
+</div>
+
+<div class="step">
+    <h3>Reconfiguration DNS</h3>
+    <p>Modifiez le fichier de configuration Samba :</p>
+    <code>sudo nano /etc/samba/smb.conf</code>
+    <p>Recherchez et modifiez la ligne "dns forwarder" pour utiliser l'adresse IP souhaitée :</p>
+    <code>dns forwarder = 8.8.8.8</code>
+	<img src="smb/6.png">
+</div>
+
+<div class="step">
+    <h3>Reconfiguration de la résolution DNS</h3>
+    <p>Modifiez le fichier /etc/resolv.conf :</p>
+    <code>sudo nano /etc/resolv.conf</code>
+    <p>Ajoutez ou modifiez les lignes suivantes :</p>
+    <code>search mdnf.loc</code>
+    <code>nameserver 127.0.0.1</code>
+	<img src="smb/7.png">
+</div>
+
+<div class="step">
+    <h2>Nettoyage</h2>
+    <p>Supprimez le fichier inutile généré par le script :</p>
+    <code>sudo rm -f /var/lib/samba/private/krb5.conf</code>
+    <p>Remplacez le fichier supprimé par un lien symbolique :</p>
+    <code>sudo ln -s /etc/krb5.conf /var/lib/samba/private/krb5.conf</code>
+</div>
+
+<div class="step">
+    <h2>Activation de Samba au démarrage</h2>
+    <p>Démasquez le service samba-ad-dc :</p>
+    <code>sudo systemctl unmask samba-ad-dc</code>
+    <p>Activez le service samba-ad-dc :</p>
+    <code>sudo systemctl enable samba-ad-dc</code>
+    <p>Désactivez les services samba, winbind, nmbd et smbd :</p>
+    <code>sudo systemctl disable samba winbind nmbd smbd</code>
+    <p>Masquez les services samba, winbind, nmbd et smbd :</p>
+	
+	<code>sudo systemctl mask samba winbind nmbd smbd</code>
+</div>
+
+ 
+<div class="step">
+    <h2>Redémarrage de la machine</h2>
+    <p>Redémarrez la machine pour appliquer les changements :</p>
+    <code>sudo reboot</code>
+</div>
+
+<div class="step">
+    <h2>Tests</h2>
+    <p>Testez le compte administrateur de Samba (administrator) après le redémarrage :</p>
+    <code>sudo kinit administrator</code>
+    <p>Désactivez le pare-feu (si nécessaire) :</p>
+    <code>sudo ufw disable</code>
+	<img src="smb/8.png">
+</div>
+
+<div class="step">
+    <h2>Joindre un client Windows 10 au domaine</h2>
+    <p>Sur le client Windows 10, faites un clic droit sur le menu Démarrer et sélectionnez Système.</p>
+    <p>Cliquez sur "Renommer ce PC" et choisissez l'option avancée.</p>
+    <p>Dans l'onglet "Modification du nom ou du domaine de l'ordinateur", sélectionnez "Domaine" et saisissez "Mdnf".</p>
+    <p>Renseignez les identifiants : administrator et le mot de passe défini précédemment.</p>
+    <p>Vous devriez maintenant être accueilli dans le domaine "mdnf".</p>
+	<img src="smb/9.png">
+</div>
+
+<div class="step">
+    <h2>Installation des RSAT pour administrer le domaine</h2>
+    <p>Après le redémarrage, connectez-vous au client Windows avec le compte administrateur au domaine.</p>
+    <p>Vérifiez que vous êtes bien dans le domaine en affichant les propriétés système.</p>
+    <img src="smb/10.png">
+	<p>Accédez au menu Démarrer, puis à Paramètres, Applications, Fonctionnalités facultatives.</p>
+    <p>Cliquez sur "Ajouter une fonctionnalité" et recherchez "rsat".</p>
+    <p>Cocher les services à installer, notamment "RSAT : outils Active Directory Domain Services Directory et services LDS (Lightweight Directory Services)".</p>
+    <p>Procédez à l'installation des fonctionnalités RSAT.</p>
+	<img src="smb/11.png">
+</div>
+
+<div class="step">
+    <h2>Administrer!</h2>
+    <p>Vous pouvez maintenant utiliser les outils RSAT installés pour administrer le domaine.</p>
+	<img src="smb/12.png">
+</div>
+</body>
+</html>

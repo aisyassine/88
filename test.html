@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dimensions de la fenêtre</title>
+</head>
+<body>
+
+    <p id="largeur">Largeur: </p>
+    <p id="hauteur">Hauteur: </p>
+
+    <script>
+        function afficherDimensions() {
+            var largeur = window.innerWidth;
+            var hauteur = window.innerHeight;
+
+            document.getElementById('largeur').innerHTML = "Largeur: " + largeur;
+            document.getElementById('hauteur').innerHTML = "Hauteur: " + hauteur;
+        }
+
+        // Affiche les dimensions initiales
+        afficherDimensions();
+
+        // Met à jour les dimensions lorsqu'on redimensionne la fenêtre
+        window.onresize = afficherDimensions;
+    </script>
+
+</body>
+</html>

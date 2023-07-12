@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Installation de GLPI / CMS sur Debian 11</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background-color: #f7f7f7;
+        }
+        div.container {
+		width: 80%;
+             
+            padding: 20px;
+        margin: 0 auto;
+            border-radius: 5px;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #666;
+        }
+        pre {
+                       border: 1px solid #808080;
+            background-color: #f7f7f9;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        code {
+                     color: #1E90FF;
+            
+        }
+		
+					header {
+			background-color: #333;
+			color: #fff;
+			text-align: center;
+			padding: 20px;
+			margin-bottom: 20px;
+		}
+		
+		
+    </style>
+</head>
+<body>
+<header>
+	<center> <h1 style="color: #FFFFFF ;">Installation de GLPI / CMS sur Debian 11</h1></center>
+	</header>
+	
+	
+    <div class="container">
+        
+
+        <h2>Étape 1: Mettre à jour le système</h2>
+        <pre><code>
+sudo apt update
+sudo apt upgrade
+        </code></pre>
+
+        <h2>Étape 2: Installer Apache</h2>
+        <pre><code>sudo apt install apache2</code></pre>
+
+        <h2>Étape 3: Installer MariaDB (système de gestion de base de données)</h2>
+        <pre><code>sudo apt install mariadb-server</code></pre>
+
+        <h2>Étape 4: Sécuriser l'installation de MariaDB</h2>
+        <pre><code>sudo mysql_secure_installation</code></pre>
+
+        <h2>Étape 5: Créer la base de données et l'utilisateur pour GLPI</h2>
+        <pre><code>
+sudo mysql -u root -p  
+CREATE DATABASE glpi; 
+CREATE USER 'glpiuser'@'localhost' IDENTIFIED BY 'password'; 
+GRANT ALL PRIVILEGES ON glpi.* TO 'glpiuser'@'localhost'; 
+FLUSH PRIVILEGES; 
+Exit
+        </code></pre>
+
+        <h2>Étape 6: Installer PHP et les extensions nécessaires</h2>
+        <pre><code>
+sudo apt install php libapache2-mod-php php-mysql php-curl php-gd php-intl php-mbstring php-xml php-apcu php-ldap php-xmlrpc php-cas php-bz2
+        </code></pre>
+
+        <h2>Étape 7: Télécharger GLPI</h2>
+        <pre><code>
+cd /tmp 
+wget https://github.com/glpi-project/glpi/releases/download/10.0.7/glpi-10.0.7.tgz
+        </code></pre>
+
+        <h2>Étape 8: Extraire et déplacer GLPI</h2>
+        <pre><code>
+tar xvf glpi-10.0.7.tgz 
+sudo mv glpi /var/www/html/
+        </code></pre>
+
+        <h2>Étape 9: Modifier les permissions</h2>
+        <pre><code>
+sudo chown -R www-data:www-data /var/www/html/glpi
+        </code></pre>
+
+        <h2>Étape 10: Configurer les virtual hosts pour Apache et GLPI</h2>
+        <pre><code>sudo nano /etc/apache2/sites-available/glpi.conf
+sudo nano /etc/apache2/sites-available/apache_cms.conf
+        </code></pre>
+        <p>Ajoutez la configuration suivante pour chaque fichier, en remplaçant ServerName et DocumentRoot par les valeurs appropriées :</p>
+
+        <h3>Configuration pour GLPI (glpi.conf)</h3>
+        <pre><code>
+&lt;VirtualHost *:80&gt;
+    ServerName glpi.example.com
+    DocumentRoot /var/www/html/glpi
+    &lt;Directory /var/www/html/glpi&gt;
+        Options FollowSymLinks
+        AllowOverride All
+        Require all granted
+    &lt;/Directory&gt;
+    ErrorLog ${APACHE_LOG_DIR}/glpi_error.log
+    CustomLog ${APACHE_LOG_DIR}/glpi_access.log combined
+&lt;/VirtualHost&gt;
+        </code></pre>
+
+        <h3>Configuration pour Apache CMS (apache_cms.conf)</h3>
+        <pre><code>
+&lt;VirtualHost *:80&gt;
+    ServerName cms.example.com
+    DocumentRoot /var/www/html/cms
+    &lt;Directory /var/www/html/cms&gt;
+        Options FollowSymLinks
+        AllowOverride All
+        Require all granted
+    &lt;/Directory&gt;
+    ErrorLog ${APACHE_LOG_DIR}/cms_error.log
+    CustomLog ${APACHE_LOG_DIR}/cms_access.log combined
+&lt;/VirtualHost&gt;
+        </code></pre>
+
+        <h2>Étape 11: Activez les virtual hosts et redémarrez Apache</h2>
+        <pre><code>
+sudo a2ensite glpi.conf
+sudo a2ensite apache_cms.conf
+sudo systemctl restart apache2
+        </code></pre>
+
+        <h2>Étape 12: Configurer le pare-feu (si vous utilisez ufw) pour autoriser le trafic HTTP</h2>
+        <pre><code>
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+        </code></pre>
+
+        <h2>Étape 13: Terminez l'installation de GLPI via le navigateur</h2>
+        <p>Accédez à l'URL de votre serveur GLPI (par exemple, http://glpi.example.com) et suivez les instructions pour terminer l'installation. Utilisez les informations de la base de données et de l'utilisateur que vous avez créées précédemment.</p>
+    </div> 
+</body>
+</html>
+
